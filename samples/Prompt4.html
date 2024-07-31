@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Algorithm Topics Tree Visualization (Combined Nodes)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #tree-container {
+            width: 95vw;
+            height: 95vh;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
+        .node text {
+            font: 12px sans-serif;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="tree-container"></div>
+    <script>
+        const treeData = {
+  "Arrays & Hashing": {
+    "children": [
+      "Two Pointers",
+      "Stack"
+    ]
+  },
+  "Two Pointers": {
+    "children": [
+      "Binary Search",
+      "Sliding Window",
+      "Linked List"
+    ]
+  },
+  "Stack": {
+    "children": []
+  },
+  "Binary Search": {
+    "children": [
+      "Trees"
+    ]
+  },
+  "Sliding Window": {
+    "children": []
+  },
+  "Linked List": {
+    "children": [
+      "Trees"
+    ]
+  },
+  "Trees": {
+    "children": [
+      "Tries",
+      "Backtracking",
+      "Heap / Priority Queue"
+    ]
+  },
+  "Tries": {
+    "children": []
+  },
+  "Backtracking": {
+    "children": [
+      "Graphs",
+      "1-D DP"
+    ]
+  },
+  "Heap / Priority Queue": {
+    "children": [
+      "Intervals",
+      "Greedy",
+      "Advanced Graphs"
+    ]
+  },
+  "Graphs": {
+    "children": [
+      "Advanced Graphs",
+      "2-D DP",
+      "Math & Geometry"
+    ]
+  },
+  "1-D DP": {
+    "children": [
+      "2-D DP",
+      "Bit Manipulation"
+    ]
+  },
+  "Intervals": {
+    "children": []
+  },
+  "Greedy": {
+    "children": []
+  },
+  "Advanced Graphs": {
+    "children": []
+  },
+  "2-D DP": {
+    "children": []
+  },
+  "Bit Manipulation": {
+    "children": [
+      "Math & Geometry"
+    ]
+  },
+  "Math & Geometry": {
+    "children": []
+  }
+};
+
+        function createGraph(data) {
+            const graph = { nodes: {}, links: [] };
+            
+            function addNode(name) {
+                if (!graph.nodes[name]) {
+                    graph.nodes[name] = { name, children: new Set() };
+                }
+                return graph.nodes[name];
+            }
+
+            Object.entries(data).forEach(([parent, info]) => {
+                const parentNode = addNode(parent);
+                info.children.forEach(child => {
+                    const childNode = addNode(child);
+                    parentNode.children.add(child);
+                    graph.links.push({ source: parent, target: child });
+                });
+            });
+
+            return graph;
+        }
+
+        const graph = createGraph(treeData);
+
+        const margin = { top: 40, right: 90, bottom: 50, left: 90 };
+        const width = window.innerWidth - margin.left - margin.right;
+        const height = window.innerHeight - margin.top - margin.bottom;
+
+        const svg = d3.select("#tree-container").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        function createHierarchy(graph, root) {
+            const visited = new Set();
+            function dfs(nodeName) {
+                if (visited.has(nodeName)) return null;
+                visited.add(nodeName);
+                const node = { name: nodeName, children: [] };
+                graph.nodes[nodeName].children.forEach(childName => {
+                    const childNode = dfs(childName);
+                    if (childNode) node.children.push(childNode);
+                });
+                return node.children.length ? node : { name: nodeName };
+            }
+            return dfs(root);
+        }
+
+        const hierarchicalData = createHierarchy(graph, "Arrays & Hashing");
+
+        const tree = d3.tree().size([width, height]);
+
+        const root = d3.hierarchy(hierarchicalData);
+        tree(root);
+
+        const link = svg.selectAll(".link")
+            .data(root.descendants().slice(1))
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", d => `
+                M${d.x},${d.y}
+                C${d.x},${(d.y + d.parent.y) / 2}
+                 ${d.parent.x},${(d.y + d.parent.y) / 2}
+                 ${d.parent.x},${d.parent.y}
+            `);
+
+        const node = svg.selectAll(".node")
+            .data(root.descendants())
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        node.append("circle")
+            .attr("r", 10);
+
+        node.append("text")
+            .attr("dy", ".35em")
+            .attr("y", d => d.children ? -20 : 20)
+            .style("text-anchor", "middle")
+            .text(d => d.data.name);
+
+        const additionalLinks = graph.links.filter(link => 
+            !root.descendants().some(d => 
+                d.data.name === link.source && 
+                d.children && d.children.some(child => child.data.name === link.target)
+            )
+        );
+
+        svg.selectAll(".additional-link")
+            .data(additionalLinks)
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", d => {
+                const source = root.descendants().find(node => node.data.name === d.source);
+                const target = root.descendants().find(node => node.data.name === d.target);
+                return `
+                    M${source.x},${source.y}
+                    C${source.x},${(source.y + target.y) / 2}
+                     ${target.x},${(source.y + target.y) / 2}
+                     ${target.x},${target.y}
+                `;
+            });
+    </script>
+</body>
+</html>

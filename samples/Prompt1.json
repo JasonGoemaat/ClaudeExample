@@ -1,0 +1,87 @@
+{
+    "Arrays & Hashing": {
+      "children": [
+        "Two Pointers",
+        "Stack"
+      ]
+    },
+    "Two Pointers": {
+      "children": [
+        "Binary Search",
+        "Sliding Window",
+        "Linked List"
+      ]
+    },
+    "Stack": {
+      "children": []
+    },
+    "Binary Search": {
+      "children": [
+        "Trees"
+      ]
+    },
+    "Sliding Window": {
+      "children": []
+    },
+    "Linked List": {
+      "children": [
+        "Trees"
+      ]
+    },
+    "Trees": {
+      "children": [
+        "Tries",
+        "Backtracking",
+        "Heap / Priority Queue"
+      ]
+    },
+    "Tries": {
+      "children": []
+    },
+    "Backtracking": {
+      "children": [
+        "Graphs",
+        "1-D DP"
+      ]
+    },
+    "Heap / Priority Queue": {
+      "children": [
+        "Intervals",
+        "Greedy",
+        "Advanced Graphs"
+      ]
+    },
+    "Graphs": {
+      "children": [
+        "Advanced Graphs",
+        "2-D DP",
+        "Math & Geometry"
+      ]
+    },
+    "1-D DP": {
+      "children": [
+        "2-D DP",
+        "Bit Manipulation"
+      ]
+    },
+    "Intervals": {
+      "children": []
+    },
+    "Greedy": {
+      "children": []
+    },
+    "Advanced Graphs": {
+      "children": []
+    },
+    "2-D DP": {
+      "children": []
+    },
+    "Bit Manipulation": {
+      "children": [
+        "Math & Geometry"
+      ]
+    },
+    "Math & Geometry": {
+      "children": []
+    }
+  }
